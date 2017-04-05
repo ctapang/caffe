@@ -13,7 +13,9 @@ namespace caffe {
 	class HebbianConvLayer : public BaseConvolutionLayer<Dtype> {
 	public:
 		explicit HebbianConvLayer(const LayerParameter& param)
-			: BaseConvolutionLayer<Dtype>(param) {}
+			: BaseConvolutionLayer<Dtype>(param) {
+			feedback_gain_ = param.convolution_param().feedback_gain();
+		}
 
 		virtual inline const char* type() const { return "HebbianConv"; }
 
@@ -29,9 +31,11 @@ namespace caffe {
 		virtual inline bool reverse_dimensions() { return false; }
 		virtual void compute_output_shape();
 
+		Dtype feedback_gain_;
+
 	private:
-		void Add_feedback(const int size, const Dtype* feedback,
-			Dtype* bottom);
+		void Add_feedback(const int size, const Dtype gain, const Dtype* bottom,
+			Dtype* feedback);
 	};
 
 }

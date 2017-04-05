@@ -109,8 +109,8 @@ void PoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
     top[1]->ReshapeLike(*top[0]);
   }
   // If max pooling, we will initialize the vector index part.
-  if (this->layer_param_.pooling_param().pool() ==
-      PoolingParameter_PoolMethod_MAX && top.size() == 1) {
+	if ((this->layer_param_.pooling_param().pool() == PoolingParameter_PoolMethod_HEBBIAN ||
+		this->layer_param_.pooling_param().pool() == PoolingParameter_PoolMethod_MAX) && top.size() == 1) {
     max_idx_.Reshape(bottom[0]->num(), channels_, pooled_height_,
         pooled_width_);
   }
@@ -138,7 +138,8 @@ void PoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   // loop to save time, although this results in more code.
   switch (this->layer_param_.pooling_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
-    // Initialize
+	case PoolingParameter_PoolMethod_HEBBIAN:
+		// Initialize
     if (use_top_mask) {
       top_mask = top[1]->mutable_cpu_data();
       caffe_set(top_count, Dtype(-1), top_mask);
@@ -301,7 +302,56 @@ void PoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   case PoolingParameter_PoolMethod_STOCHASTIC:
     NOT_IMPLEMENTED;
     break;
-  default:
+	case PoolingParameter_PoolMethod_HEBBIAN:
+		// For Hebbian layers, only one channel should win in every pool.
+		// Initialize
+		if (use_top_mask) {
+			top_mask = top[1]->mutable_cpu_data();
+		}
+		else {
+			mask = max_idx_.mutable_cpu_data();
+		}
+		// The main loop
+		for (int n = 0; n < bottom[0]->num(); ++n) {
+			for (int ph = 0; ph < pooled_height_; ++ph) {
+				for (int pw = 0; pw < pooled_width_; ++pw) {
+					const int pool_index = ph * pooled_width_ + pw;
+					const int bottom_index =
+						use_top_mask ? top_mask[pool_index] : mask[pool_index];
+
+					// detemine inter-channel max
+					Dtype max = Dtype(-FLT_MAX);
+					// reset top_data ptr
+					top_diff = top[0]->cpu_diff() + top[0]->offset(n);
+					for (int c = 0; c < channels_; ++c) {
+						if (max < top_diff[pool_index]) {
+							max = top_diff[pool_index];
+						}
+						// compute offset of next channel
+						top_diff += top[0]->offset(0, 1);
+					}
+
+					// locations in which max is negative have been zeroed by the HebbianReLU layer.
+					// decimate all non-winning channels
+					// reset top_diff ptr
+					top_diff = top[0]->cpu_diff() + top[0]->offset(n);
+					bottom_diff = bottom[0]->mutable_cpu_diff() + bottom[0]->offset(n);
+					for (int c = 0; c < channels_; ++c) {
+						if (max > top_diff[pool_index]) {
+							bottom_diff[bottom_index] = 0.0;
+						}
+						else {
+							bottom_diff[bottom_index] = 1.0;
+						}
+						// compute offset of next channel
+						bottom_diff += bottom[0]->offset(0, 1);
+						top_diff += top[0]->offset(0, 1);
+					}
+				}
+			}
+		}
+		break;
+	default:
     LOG(FATAL) << "Unknown pooling method.";
   }
 }

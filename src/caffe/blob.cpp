@@ -158,7 +158,7 @@ void Blob<Dtype>::Update() {
   switch (data_->head()) {
   case SyncedMemory::HEAD_AT_CPU:
     // perform computation on CPU
-    caffe_axpy<Dtype>(count_, Dtype(-1),
+    caffe_axpy<Dtype>(count_, Dtype(1.0),
         static_cast<const Dtype*>(diff_->cpu_data()),
         static_cast<Dtype*>(data_->mutable_cpu_data()));
     break;
@@ -166,7 +166,7 @@ void Blob<Dtype>::Update() {
   case SyncedMemory::SYNCED:
 #ifndef CPU_ONLY
     // perform computation on GPU
-    caffe_gpu_axpy<Dtype>(count_, Dtype(-1),
+    caffe_gpu_axpy<Dtype>(count_, Dtype(1.0),
         static_cast<const Dtype*>(diff_->gpu_data()),
         static_cast<Dtype*>(data_->mutable_gpu_data()));
 #else
