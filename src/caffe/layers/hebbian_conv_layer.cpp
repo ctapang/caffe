@@ -55,9 +55,9 @@ namespace caffe {
 		const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
 		const Dtype* weight = this->blobs_[0]->cpu_data();
 		Dtype* weight_diff = this->blobs_[0]->mutable_cpu_diff();
+		Blob<Dtype>* feedback = new Blob<Dtype>(bottom[0]->shape());
+		Dtype* feedback_data = feedback->mutable_cpu_data();
 		for (int i = 0; i < top.size(); ++i) {
-			Blob<Dtype>* feedback = new Blob<Dtype>(bottom[i]->shape());
-			Dtype* feedback_data = feedback->mutable_cpu_data();
 			Dtype* top_diff = top[i]->mutable_cpu_diff(); // top_diff is set by layer above, which must be a pooling layer (in which it is "bottom_diff")
 			const Dtype* top_data = top[i]->cpu_data();
 
@@ -106,8 +106,6 @@ namespace caffe {
 					this->weight_cpu_gemm(feedback_data + n * this->bottom_dim_, top_diff + n * this->top_dim_, weight_diff);
 				}
 			}
-
-			delete feedback;
 		}
 	}
 

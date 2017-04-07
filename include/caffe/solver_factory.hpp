@@ -51,9 +51,6 @@ template <typename Dtype>
 class Solver;
 
 template <typename Dtype>
-class HebbianSolver;
-
-template <typename Dtype>
 class SolverRegistry {
  public:
   typedef Solver<Dtype>* (*Creator)(const SolverParameter&);

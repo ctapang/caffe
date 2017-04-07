@@ -68,10 +68,8 @@ void PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     CHECK(this->layer_param_.pooling_param().pool()
         == PoolingParameter_PoolMethod_AVE
         || this->layer_param_.pooling_param().pool()
-        == PoolingParameter_PoolMethod_MAX
-				|| this->layer_param_.pooling_param().pool() 
-				== PoolingParameter_PoolMethod_HEBBIAN)
-        << "Padding implemented only for average, max, and hebbian pooling.";
+        == PoolingParameter_PoolMethod_MAX)
+        << "Padding implemented only for average and max pooling.";
     CHECK_LT(pad_h_, kernel_h_);
     CHECK_LT(pad_w_, kernel_w_);
   }
