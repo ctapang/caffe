@@ -101,3 +101,6 @@ MANIFEST-*
 *.opensdf
 *.pdb
 *.props
+
+# Ignore file added to examples/cifar*
+example/cifar10*
