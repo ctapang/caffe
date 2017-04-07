@@ -336,14 +336,14 @@
     <ClCompile Include="..\..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\caffe\solvers\HebbianSolver.cpp">
-      <Filter>src\solvers</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\caffe\layers\hebbian_conv_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\caffe\layers\hebbian_relu_layer.cpp">
       <Filter>src\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\caffe\solvers\hebbian_solver.cpp">
+      <Filter>src\solvers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -647,14 +647,14 @@
     <ClInclude Include="..\..\include\caffe\layers\scale_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\caffe\HebbianSolver.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\caffe\layers\hebbian_conv_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\caffe\layers\hebbian_relu_layer.hpp">
       <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\caffe\hebbian_solver.hpp">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

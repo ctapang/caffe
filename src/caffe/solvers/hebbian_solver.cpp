@@ -182,7 +182,7 @@ namespace caffe {
 			ComputeUpdateValue(param_id, rate);
 		}
 		this->net_->Update();
-		this->net_->ClearFeedback();
+		//this->net_->ClearFeedback();
 	}
 
 	template <typename Dtype>

@@ -81,7 +81,9 @@ class Solver {
     virtual void on_gradients_ready() = 0;
 
     template <typename T>
-    friend class Solver;
+		friend class Solver;
+		template <typename T>
+		friend class HebbianSolver;
   };
   const vector<Callback*>& callbacks() const { return callbacks_; }
   void add_callback(Callback* value) {
