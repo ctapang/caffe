@@ -11,6 +11,16 @@
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/math_functions.hpp"
 
+#ifdef _DEBUG
+#define REGDATA(p) p->mutable_gpu_data();
+#define REGDIFF(p) p->mutable_gpu_diff();
+#define DISPLAYMEM(p1, p2, p3, p4) GetCPUPointers(p1, p2, p3, p4);
+#else
+#define REGDATA(p)
+#define REGDIFF(p)
+#define DISPLAYMEM(p1, p2, p3, p4)
+#endif
+
 /**
  Forward declare boost::thread instead of including boost/thread.hpp
  to avoid a boost/NVCC issues (#1009, #1010) on OSX.
@@ -330,6 +340,12 @@ class Layer {
   /** The vector that indicates whether each top blob has a non-zero weight in
    *  the objective function. */
   vector<Dtype> loss_;
+
+	/** @brief Using the CPU device, display layer data on VS2013 debug memory display command. */
+	void GetCPUPointers(const Dtype* p1, const Dtype* p2 = NULL, const Dtype* p3 = NULL, const Dtype* p4 = NULL) {
+		Dtype dummy = p1[0]; // place breakpoint here
+		dummy = p1[2]; // this is just to ensure that the line above doesn't get optimized away
+	}
 
   /** @brief Using the CPU device, compute the layer output. */
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,

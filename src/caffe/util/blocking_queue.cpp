@@ -18,6 +18,10 @@ class BlockingQueue<T>::sync {
 template<typename T>
 BlockingQueue<T>::BlockingQueue()
     : sync_(new sync()) {
+	//init queue
+	T* x = new T();
+	queue_.push(*x);
+	queue_.pop();
 }
 
 template<typename T>
