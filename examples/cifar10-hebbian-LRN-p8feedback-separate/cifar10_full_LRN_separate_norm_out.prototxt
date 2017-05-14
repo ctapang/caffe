@@ -1,0 +1,100 @@
+name: "CIFAR10_full"
+force_backward: true
+debug_info: true
+layer {
+  name: "cifar"
+  type: "Data"
+  top: "data"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mean_file: "C:/Users/Carlos/GitHub/caffe/examples/cifar10-hebbian-LRN/mean.binaryproto"
+  }
+  data_param {
+    source: "C:/Users/Carlos/GitHub/caffe/examples/cifar10-hebbian-LRN/cifar10_train_lmdb"
+    batch_size: 1
+    backend: LMDB
+  }
+}
+layer {
+  name: "cifar"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mean_file: "C:/Users/Carlos/GitHub/caffe/examples/cifar10-hebbian-LRN/mean.binaryproto"
+  }
+  data_param {
+    source: "C:/Users/Carlos/GitHub/caffe/examples/cifar10-hebbian-LRN/cifar10_test_lmdb"
+    batch_size: 1
+    backend: LMDB
+  }
+}
+layer {
+  name: "conv1"
+  type: "HebbianConv"
+  bottom: "data"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.001
+    }
+    bias_filler {
+      type: "constant"
+    }
+    feedback_gain: 0.8
+  }
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "pool1"
+  top: "pool1"
+}
+# k = 2, n = 5, ? = 10?4, and ? = 0.75
+layer {
+  name: "lrn1"
+  type: "LRN"
+  bottom: "pool1"
+  top: "norm1"
+  lrn_param {
+    local_size: 33
+    norm_region: ACROSS_CHANNELS
+    alpha: 0.0001
+    beta: 0.75
+    k: 2
+    engine: CAFFE
+  }
+}
+layer {
+  name: "fb1"
+  type: "Feedback"
+  bottom: "norm1"
+  top: "norm1"
+}

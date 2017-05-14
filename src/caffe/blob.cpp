@@ -172,6 +172,12 @@ void Blob<Dtype>::Update() {
 #else
     NO_GPU;
 #endif
+
+#ifdef _DEBUG
+		diff_->mutable_gpu_data();
+		diff_->cpu_data();
+		data_->cpu_data();
+#endif
     break;
   default:
     LOG(FATAL) << "Syncedmem not initialized.";

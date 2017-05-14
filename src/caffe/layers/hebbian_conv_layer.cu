@@ -17,11 +17,11 @@ namespace caffe {
 		const vector<Blob<Dtype>*>& top) {
 		const Dtype* weight = this->blobs_[0]->gpu_data();
 		for (int i = 0; i < bottom.size(); ++i) {
-			DISPLAYMEM(bottom[i]->cpu_diff(), bottom[i]->cpu_data(), top[i]->cpu_data(), this->blobs_[0]->gpu_data())
 			const Dtype* bottom_data = bottom[i]->gpu_data();
 			Dtype* feedback = bottom[i]->mutable_gpu_diff();
 			Dtype* top_data = top[i]->mutable_gpu_data();
-			for (int n = 0; n < this->num_; ++n) {
+			DISPLAYMEM(bottom[i]->cpu_diff(), bottom[i]->cpu_data(), top[i]->cpu_data(), bottom[i]->mutable_gpu_diff())
+				for (int n = 0; n < this->num_; ++n) {
 				Add_feedback_gpu(this->bottom_dim_, this->feedback_gain_, bottom_data + n * this->bottom_dim_, feedback + n * this->bottom_dim_);
 				this->forward_gpu_gemm(feedback + n * this->bottom_dim_, weight, top_data + n * this->top_dim_);
 				if (this->bias_term_) {
@@ -42,6 +42,7 @@ namespace caffe {
 		for (int i = 0; i < top.size(); ++i) {
 			REGDIFF(bottom[i]) // ensure that CPU mem copy of bottom diff is refreshed
 			REGDIFF(top[i]) // ensure that CPU mem copy of top diff is refreshed
+			REGDATA(this->blobs_[0])
 			DISPLAYMEM(bottom[i]->cpu_diff(), this->blobs_[0]->cpu_data(), this->blobs_[0]->cpu_diff(), top[i]->cpu_diff())
 
 			const Dtype* top_diff = top[i]->gpu_diff(); // top_diff is set by layer above, which must be a pooling layer (in which it is "bottom_diff")
@@ -76,6 +77,7 @@ namespace caffe {
 			}
 			REGDIFF(bottom[i]) // ensure that CPU mem copy of bottom diff is refreshed
 			REGDIFF(top[i]) // ensure that CPU mem copy of top diff is refreshed
+			REGDIFF(this->blobs_[0])
 			DISPLAYMEM(bottom[i]->cpu_diff(), this->blobs_[0]->cpu_data(), this->blobs_[0]->cpu_diff(), top[i]->cpu_diff())
 		}
 	}
